@@ -237,5 +237,14 @@ I7 = (-1/q)*f_Geertsma_I2(q,r,R) + q^2*m^1.5/(8*pi*(1-m)*(r*R)^2.5)*(...
 
 end
 
+%% Auxiliaty Function for Heuman-Lambda Function
+
+function [L] = f_Heuman_Lambda(Beta,m)
+
+L = (2/pi)*(ellipticE(m)*ellipticF(Beta,1-m) + ...
+    ellipticK(m)*ellipticE(Beta,1-m) - ...
+    ellipticK(m)*ellipticF(Beta,1-m));
+
+end
 %%
 
