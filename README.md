@@ -7,12 +7,16 @@ Matlab implementation of Geertsma's equation (Geerstma, 1973) for subsidence and
 
 - 'Geertsma_Example': runs a numerical example, with some plot suggestions.
 
-Author: Filipe Borges (filipe.borges@ntnu.no),
-  Norwegian University of Science and Technology.
-    First Version: 2018. 
-    Last Update: 29/10/2018
+Author: Filipe Borges (filipe.borges@ntnu.no), 
+Norwegian University of Science and Technology.
+    
+Updatde History
+	- 14/11/2018: Added code to calculate Heuman Lambda Function (end of main code).
 
-	References:
+
+
+References:
+
     Fjær, E., R. M. Holt, A. Raaen, R. Risnes, and P. Horsrud,
        2008, Petroleum related rock mechanics: Elsevier, 53.
 
