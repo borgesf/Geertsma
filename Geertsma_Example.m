@@ -1,7 +1,7 @@
 %% Simple example of how Geertsma function works, and some suggestions 
 % for displaying the results.
 % 
-% Author: Filipe Borges (filipe.borges@ntnu.no)
+% Author: Filipe Borges (filipe.borges.7@gmail.com)
 % Date: 29/10/2018
 
     clear;
@@ -13,24 +13,25 @@
     R = 300;                    % Reservoir Radius (meters)
     h = 100;                    % Reservoir Thickness (meters)
     Delta_p = -10*10^6;         % Change in Pore Pressure (Pascal)
-    N_Layers = 1;               %
+    N_Layers = 10;               %
 
 % Medium Parameters
-
 
     E = 2*10^9;                 % Young's Modulus (Pa)
     Nu = 0.25;                  % Nu - Poisson's Ratio (dimensionless)
     K_mineral = 37*10^9;        % K_mineral - Mineral's Bulk Modulus (Pascal) (Values for quartz)
 
 % Coordinates for output
-    Z = linspace(eps,1000,23);
-    r = linspace(eps,1000,23);
+    Z = linspace(eps,1000,101);
+    r = linspace(eps,1000,101);
         
-% Running function    
-    [uz,ur,sigmaz,sigmar] = Geertsma(D,R,h,Delta_p,E,Nu,K_mineral,Z,r,N_Layers);
+% Running function (selec the correct one, whether you have or not the
+% symbolic toolbox package)
+    [uz,ur,sigmaz,sigmar] = Geertsma_No_ToolBox(D,R,h,Delta_p,E,Nu,K_mineral,Z,r,N_Layers);
+    %[uz,ur,sigmaz,sigmar] = Geertsma_Symbolic_Toolbox(D,R,h,Delta_p,E,Nu,K_mineral,Z,r,N_Layers);
     
 
-%% Interpolating results for quick display
+%% Interpolating results for display
 % Tip: define "symmetric" arrays to allow for better visualization
 
 r_symmetric = [-fliplr(r),r];
@@ -42,8 +43,8 @@ Sigma_r_symmetric = -[fliplr(sigmar),sigmar];   % Minus sign for having positive
 
 [RGRID,ZGRID] = meshgrid(r_symmetric,Z);        % Model Grid
 
-rplot = linspace(r_symmetric(1),r_symmetric(end),100);
-zplot = linspace(Z(1),Z(end),100);
+rplot = linspace(r_symmetric(1),r_symmetric(end),500);
+zplot = linspace(Z(1),Z(end),500);
 
 [RPLOT,ZPLOT] = meshgrid(rplot,zplot);          % Display Grid
 

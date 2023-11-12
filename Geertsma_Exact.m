@@ -17,6 +17,7 @@ function u_Z = Geertsma_Exact(D, R, h, Delta_p, E, nu, K_mineral, Z, shouldPlot)
 % u_Z       - Calculated vertical displacement at depths Z (meters)
 %
 % The function assumes all parameters are in SI units.
+% Author: Filipe Borges (filipe.borges.7@gmail.com)
 
 
 arguments

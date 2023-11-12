@@ -1,15 +1,21 @@
 # Geertsma
 Matlab implementation of Geertsma's equation (Geerstma, 1973) for subsidence and inflation of a reservoir in a homgeneous medium. In-line syntax is described in  the comments. See the files for further documentation.
 
-- 'Geertsma' file: modeling function, with detailed explanation.
-
 - 'Geertsma_Checklist': runs a quick check on the functions.
 
-- 'Geertsma_Example': runs a numerical example, with some plot suggestions.
+- 'Geertsma_Exact': calculates the vertical compaction on the line above and below a compacting disc
+
+- 'Geertsma_Example': runs a numerical example, with some plot suggestions. 
+
+- 'Geertsma_Symbolic_ToolBox': modeling function, with detailed explanation. Use this if you have the symbolic toolbox installed
+
+- 'Geertsma_No_ToolBox': modeling function, with detailed explanation. Use this if you do not have the symbolic toolbox installed. Accuracy is slightly worse.
+
+- Other functions are numerical implementations necessary in the absence of the Symbolic Toolbox.
 
 Author: 
 
-	Filipe Borges (filipe.borges@ntnu.no), 
+	Filipe Borges (filipe.borges.7@gmail.com), 
 	Norwegian University of Science and Technology.
     
 Updatde History:
