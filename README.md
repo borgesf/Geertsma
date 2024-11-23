@@ -15,13 +15,12 @@ Matlab implementation of Geertsma's equation (Geerstma, 1973) for subsidence and
 
 Author: 
 
-	Filipe Borges (filipe.borges.7@gmail.com), 
-	Norwegian University of Science and Technology.
+	Filipe Borges (filipe.borges.7@gmail.com)
     
 Updatde History:
 
 	- 14/11/2018: Added code to calculate Heuman Lambda Function (end of main code).
-
+    - 23/11/2024: Update plot display
 
 
 References:

@@ -11,7 +11,7 @@ m_dash = (1-m);
 
 [incF, incE, ~] = elliptic12(Beta,m_dash);
 
-L = 2/pi * (E*incF + K*incE - K*incF );
+L = 2/pi * (E.*incF + K.*incE - K.*incF );
 
 
 end

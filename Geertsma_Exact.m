@@ -65,8 +65,8 @@ if shouldPlot
     plot(100*u_Z(aboveReservoir), Z(aboveReservoir), 'r', 'LineWidth', 1.8,'DisplayName','Vertical displacement - Geertsma')
     plot(100*u_Z(belowReservoir), Z(belowReservoir), 'r', 'LineWidth', 1.8,'HandleVisibility','off')
 
-    xlabel('Vertical displacement (cm)')
-    ylabel('Depth (m)')
+    xlabel('Vertical displacement (cm)', 'Interpreter','latex')
+    ylabel('Depth (m)', 'Interpreter','latex')
 
     XLIM = xlim;
     Y_Patch = [reservoirBottom, reservoirBottom, reservoirTop, reservoirTop]; 
@@ -85,6 +85,7 @@ if shouldPlot
 
     % Match the limits and ticks of the right y-axis with the left y-axis
     set(ax, 'YLim', leftAxisLimits)
+    title('Compaction above the axis of a compacting cylinder based', 'Interpreter','latex')
 
     legend('Location','Northeast');
     set(findall(gcf, '-property', 'FontSize'), 'FontSize', 18);

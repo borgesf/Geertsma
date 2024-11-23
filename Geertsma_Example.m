@@ -1,169 +1,203 @@
-%% Simple example of how Geertsma function works, and some suggestions 
-% for displaying the results.
-% 
+% This script showcases how the Geertsma function works for displacement
+% and stress analysis in a reservoir, along with visualization techniques.
+%
+% Reference:
+%	   Fjær, E., R. M. Holt, A. Raaen, R. Risnes, and P. Horsrud,
+%        2008, Petroleum related rock mechanics: Elsevier, 53.
+%
 % Author: Filipe Borges (filipe.borges.7@gmail.com)
-% Date: 29/10/2018
 
-    clear;
-    clc;
-    
-% Reservoir geometry and Pressure change
+% Clear environment and prepare workspace
+clear;
+clc;
 
-    D = 400;                    % Reservoir Depth (meters)
-    R = 300;                    % Reservoir Radius (meters)
-    h = 100;                    % Reservoir Thickness (meters)
-    Delta_p = -10*10^6;         % Change in Pore Pressure (Pascal)
-    N_Layers = 10;               %
+%% Reservoir Parameters
+D = 400; % Reservoir Depth [m]
+R = 300; % Reservoir Radius [m]
+h = 100; % Reservoir Thickness [m]
+deltaP = -10e6; % Change in Pore Pressure [Pa]
+numLayers = 10; % Number of layers in the reservoir
 
-% Medium Parameters
+%% Medium Properties
+E = 2e9; % Young's Modulus [Pa]
+nu = 0.25; % Poisson's Ratio [unitless]
+kMineral = 37e9; % Bulk Modulus of Mineral [Pa]
 
-    E = 2*10^9;                 % Young's Modulus (Pa)
-    Nu = 0.25;                  % Nu - Poisson's Ratio (dimensionless)
-    K_mineral = 37*10^9;        % K_mineral - Mineral's Bulk Modulus (Pascal) (Values for quartz)
+%% Output Coordinates
+zCoords = linspace(eps, 1000, 101); % Vertical positions [m]
+rCoords = linspace(eps, 1000, 101); % Radial positions [m]
 
-% Coordinates for output
-    Z = linspace(eps,1000,101);
-    r = linspace(eps,1000,101);
-        
-% Running function (selec the correct one, whether you have or not the
-% symbolic toolbox package)
-    [uz,ur,sigmaz,sigmar] = Geertsma_No_ToolBox(D,R,h,Delta_p,E,Nu,K_mineral,Z,r,N_Layers);
-    %[uz,ur,sigmaz,sigmar] = Geertsma_Symbolic_Toolbox(D,R,h,Delta_p,E,Nu,K_mineral,Z,r,N_Layers);
-    
+%% Function Evaluation
+% Use either symbolic or non-symbolic version based on availability
 
-%% Interpolating results for display
-% Tip: define "symmetric" arrays to allow for better visualization
+[uz, ur, sigmaZ, sigmaR] = Geertsma_No_ToolBox(D, R, h, deltaP, E, nu, kMineral, zCoords, rCoords, numLayers);
+% [uz, ur, sigmaZ, sigmaR] = Geertsma_Symbolic_Toolbox(D, R, h, deltaP, E, nu, kMineral, zCoords, rCoords, numLayers);
 
-r_symmetric = [-fliplr(r),r];
+%% Symmetry and Grid Preparation
+rSymmetric = [-fliplr(rCoords), rCoords];
+uzSymmetric = [fliplr(uz), uz];
+urSymmetric = [fliplr(ur), ur];
+sigmaZSymmetric = -[fliplr(sigmaZ), sigmaZ];
+sigmaRSymmetric = -[fliplr(sigmaR), sigmaR];
 
-u_z_symmetric = [fliplr(uz),uz];
-u_r_symmetric = [fliplr(ur),ur];
-Sigma_z_symmetric = -[fliplr(sigmaz),sigmaz];   % Minus sign for having positive == compression
-Sigma_r_symmetric = -[fliplr(sigmar),sigmar];   % Minus sign for having positive == compression
+[rGrid, zGrid] = meshgrid(rSymmetric, zCoords);
 
-[RGRID,ZGRID] = meshgrid(r_symmetric,Z);        % Model Grid
+%% Interpolation for Visualization
+[rPlot, zPlot] = meshgrid(linspace(rSymmetric(1), rSymmetric(end), 500), linspace(zCoords(1), zCoords(end), 500));
 
-rplot = linspace(r_symmetric(1),r_symmetric(end),500);
-zplot = linspace(Z(1),Z(end),500);
+uzInterp = interpolateField(uzSymmetric, rGrid, zGrid, rPlot, zPlot);
+urInterp = interpolateField(urSymmetric, rGrid, zGrid, rPlot, zPlot);
+sigmaZInterp = interpolateField(sigmaZSymmetric, rGrid, zGrid, rPlot, zPlot);
+sigmaRInterp = interpolateField(sigmaRSymmetric, rGrid, zGrid, rPlot, zPlot);
 
-[RPLOT,ZPLOT] = meshgrid(rplot,zplot);          % Display Grid
+%% Visualization
+visualizeResults(rPlot, zPlot, uzInterp, urInterp, sigmaZInterp, sigmaRInterp, R, D, h);
 
-% Identifying possible NaN or infinity values, can cause numerical instability
-u_z_symmetric(u_z_symmetric==inf | u_z_symmetric==-inf) = NaN;
-u_r_symmetric(u_r_symmetric==inf | u_r_symmetric==-inf) = NaN;
-Sigma_z_symmetric(Sigma_z_symmetric==inf | Sigma_z_symmetric==-inf) = NaN;
-Sigma_r_symmetric(Sigma_z_symmetric==inf | Sigma_z_symmetric==-inf) = NaN;
+%% Helper Functions
 
+function result = interpolateField(field, rGrid, zGrid, rPlot, zPlot)
+% INTERPOLATEFIELD Interpolates field data for visualization grids.
+%
+% This function interpolates a 2D field dataset from a given grid to a
+% specified plotting grid. It handles missing or infinite values by
+% assigning them as NaN and uses interpolation methods accordingly.
+%
+% Inputs:
+%   field   - (n, m) double array of field data to interpolate
+%   rGrid   - (n, m) double array, radial grid coordinates for field
+%   zGrid   - (n, m) double array, vertical grid coordinates for field
+%   rPlot   - (p, q) double array, radial coordinates for plotting grid
+%   zPlot   - (p, q) double array, vertical coordinates for plotting grid
+%
+% Outputs:
+%   result  - (p, q) double array, interpolated field data
+%
+% Example:
+%   result = interpolateField(fieldData, rGrid, zGrid, rPlot, zPlot);
 
-if sum(sum(isnan(u_z_symmetric)))>0
-   indx = ~(isnan(u_z_symmetric));  
-   Interpolated_uz = griddata(RGRID(indx),ZGRID(indx),u_z_symmetric(indx),RPLOT,ZPLOT,'natural');
-else
-   Interpolated_uz = interp2(RGRID,ZGRID,u_z_symmetric,RPLOT,ZPLOT,'spline');
+% Validate inputs using arguments block
+arguments
+    field(:, :) double{mustBeNumeric, mustBeReal}
+    rGrid(:, :) double{mustBeNumeric, mustBeReal, mustBeEqualSize(field, rGrid)}
+    zGrid(:, :) double{mustBeNumeric, mustBeReal, mustBeEqualSize(field, zGrid)}
+    rPlot(:, :) double{mustBeNumeric, mustBeReal}
+    zPlot(:, :) double{mustBeNumeric, mustBeReal, mustBeEqualSize(rPlot, zPlot)}
 end
 
-if sum(sum(isnan(u_r_symmetric)))>0
-   indx = ~(isnan(u_r_symmetric));  
-   Interpolated_ur = griddata(RGRID(indx),ZGRID(indx),u_r_symmetric(indx),RPLOT,ZPLOT,'natural');
+% Replace infinities with NaN for stability
+field(isinf(field)) = NaN;
+
+% Check for and handle NaN values
+if any(isnan(field), 'all')
+    validIndices = ~isnan(field);
+    result = griddata(rGrid(validIndices), zGrid(validIndices), field(validIndices), rPlot, zPlot, 'natural');
 else
-   Interpolated_ur = interp2(RGRID,ZGRID,u_r_symmetric,RPLOT,ZPLOT,'spline');
+    result = interp2(rGrid, zGrid, field, rPlot, zPlot, 'spline');
+end
 end
 
-if sum(sum(isnan(Sigma_z_symmetric)))>0
-   indx = ~(isnan(Sigma_z_symmetric));  
-   Interpolated_sz = griddata(RGRID(indx),ZGRID(indx),Sigma_z_symmetric(indx),RPLOT,ZPLOT,'natural');
-else
-   Interpolated_sz = interp2(RGRID,ZGRID,Sigma_z_symmetric,RPLOT,ZPLOT,'spline');
+function mustBeEqualSize(A, B)
+% MUSTBEEQUALSIZE Inline validation function to ensure matrices have the same size.
+if ~isequal(size(A), size(B))
+    error('Input matrices must have the same size.');
 end
-
-if sum(sum(isnan(Sigma_r_symmetric)))>0
-   indx = ~(isnan(Sigma_r_symmetric));  
-   Interpolated_sr = griddata(RGRID(indx),ZGRID(indx),Sigma_r_symmetric(indx),RPLOT,ZPLOT,'natural');
-else
-   Interpolated_sr = interp2(RGRID,ZGRID,Sigma_r_symmetric,RPLOT,ZPLOT,'spline');
 end
 
 
-%% Displaying Results
+function visualizeResults(rPlot, zPlot, uz, ur, sigmaZ, sigmaR, R, D, h)
+% VISUALIZERESULTS Visualizes displacement and stress fields in a reservoir.
+%
+% This function generates a 2x2 subplot showing:
+%   1. Vertical displacement field
+%   2. Radial displacement field
+%   3. Vertical stress change
+%   4. Radial stress change
+%
+% Inputs:
+%   rPlot   - (n, m) double array of radial coordinates for plotting [m]
+%   zPlot   - (n, m) double array of vertical coordinates for plotting [m]
+%   uz      - (n, m) double array of vertical displacements [cm]
+%   ur      - (n, m) double array of radial displacements [cm]
+%   sigmaZ  - (n, m) double array of vertical stress changes [Pa]
+%   sigmaR  - (n, m) double array of radial stress changes [Pa]
+%   R       - (1, 1) double, reservoir radius [m]
+%   D       - (1, 1) double, reservoir depth [m]
+%   h       - (1, 1) double, reservoir thickness [m]
+%
+% Outputs:
+%   None. Displays the generated plots.
 
-figure
+% Create figure with specified position
+figure('Position', [400, 100, 1400, 1000]);
 
-subplot(221)
-hold on
-box on
-set(gca,'FontSize',12)
-title('Vertical Displacement')
-contourf(RPLOT,ZPLOT,-100*Interpolated_uz,25)
-%contourf(RPLOT,ZPLOT,-100*Interpolated_uz_grid,25)
-colormap jet
-hcb = colorbar;
-ylabel(hcb,'Vertical Displacement (cm)','FontSize',15)
-xlim([r_symmetric(1) r_symmetric(end)])
-ylim([0 Z(end)])
-set(gca,'YDir','reverse')
-%caxis([-75 80])
-xlabel('Horizontal Distance (m)')
-ylabel('SSTVD (m)')
-set(gca,'XTick',linspace(-1000,1000,5),'XTickLabel',abs(linspace(-1000,1000,5)));
-rectangle('Position',[-R, (D - h/2),2*R,h],'FaceColor','k')
-hold off
+% Plot vertical displacement
+subplot(2, 2, 1);
+plotField(rPlot, zPlot, -100*uz, 'Vertical Displacement (cm)', [], R, D, h);
+title('Vertical Displacement', 'FontSize', 14, 'Interpreter', 'latex');
 
-subplot(222)
-hold on
-box on
-set(gca,'FontSize',12)
-title('Radial Displacement')
-contourf(RPLOT,ZPLOT,-100*Interpolated_ur,25)
-colormap jet
-hcb = colorbar;
-ylabel(hcb,'Radial Displacement (cm)','FontSize',15)
-xlim([r_symmetric(1) r_symmetric(end)])
-ylim([0 Z(end)])
-set(gca,'YDir','reverse')
-%caxis([0 1])
-xlabel('Horizontal Distance (m)')
-ylabel('SSTVD (m)')
-set(gca,'XTick',linspace(-1000,1000,5),'XTickLabel',abs(linspace(-1000,1000,5)));
-rectangle('Position',[-R, (D - h/2),2*R,h],'FaceColor','k')
-hold off
+% Plot radial displacement
+subplot(2, 2, 2);
+plotField(rPlot, zPlot, -100*ur, 'Radial Displacement (cm)', [], R, D, h);
+title('Radial Displacement', 'FontSize', 14, 'Interpreter', 'latex');
 
+% Plot vertical stress change
+subplot(2, 2, 3);
+plotField(rPlot, zPlot, sigmaZ/1e6, 'Vertical Stress Change ($\Delta\sigma_V$) [MPa]', [], R, D, h);
+title('Vertical Stress Change', 'FontSize', 14, 'Interpreter', 'latex');
 
-subplot(223)
-hold on
-box on
-set(gca,'FontSize',12)
-title('Vertical Stress Change')
-contourf(RPLOT,ZPLOT,Interpolated_sz/10^6,25)
-colormap jet
-caxis([-2 2])
-hcb = colorbar;
-ylabel(hcb,'\Delta\sigma_V (MPa)','FontSize',15)
-xlim([r_symmetric(1) r_symmetric(end)])
-ylim([0 Z(end)])
-set(gca,'YDir','reverse')
-xlabel('Horizontal Distance (m)')
-ylabel('SSTVD (m)')
-set(gca,'XTick',linspace(-1000,1000,5),'XTickLabel',abs(linspace(-1000,1000,5)));
-rectangle('Position',[-R, (D - h/2),2*R,h],'FaceColor','k')
-hold off
+% Plot radial stress change
+subplot(2, 2, 4);
+plotField(rPlot, zPlot, sigmaR/1e6, 'Radial Stress Change ($\Delta\sigma_r$) [MPa]', [], R, D, h);
+title('Radial Stress Change', 'FontSize', 14, 'Interpreter', 'latex');
+end
 
-subplot(224)
-hold on
-box on
-set(gca,'FontSize',12)
-%title('Radial Stress Change')
-contourf(RPLOT,ZPLOT,Interpolated_sr/10^6,50)
-colormap jet
-%caxis([-2 2])
-hcb = colorbar;
-ylabel(hcb,'\Delta\sigma_r (MPa)','FontSize',15)
-xlim([r_symmetric(1) r_symmetric(end)])
-ylim([0 Z(end)])
-set(gca,'YDir','reverse')
-xlabel('Horizontal Distance (m)')
-ylabel('SSTVD (m)')
-set(gca,'XTick',linspace(-1000,1000,5),'XTickLabel',abs(linspace(-1000,1000,5)));
-rectangle('Position',[-R, (D - h/2),2*R,h],'FaceColor','k')
-hold off
+function plotField(x, y, field, colorbarLabel, cLimits, R, D, h)
+% PLOTFIELD Helper function to plot individual fields.
+%
+% This function creates a filled contour plot for the provided field data
+% and adds a colorbar, axis labels, and a reservoir rectangle overlay.
+%
+% Inputs:
+%   x            - (n, m) double array of horizontal coordinates [m]
+%   y            - (n, m) double array of vertical coordinates [m]
+%   field        - (n, m) double array of field values to plot
+%   colorbarLabel- (1, 1) string, label for the colorbar
+%   cLimits      - (1, 2) double array specifying color scale limits (optional)
+%                  If empty or not provided, symmetric scaling around zero
+%                  is applied based on the maximum absolute value.
+%   R            - (1, 1) double, reservoir radius [m]
+%   D            - (1, 1) double, reservoir depth [m]
+%   h            - (1, 1) double, reservoir thickness [m]
+%
+% Outputs:
+%   None. Displays the generated plot.
 
-%%
+% Default symmetric color scale around zero if cLimits not provided
+if isempty(cLimits)
+    maxAbs = max(abs(field(:)), [], 'omitnan');
+    cLimits = [-maxAbs, maxAbs];
+end
+
+% Create the contour plot
+contourf(x, y, field, 25, 'LineColor', 'k');
+hcb = colorbar; % Create the colorbar
+ylabel(hcb, colorbarLabel, 'FontSize', 15, 'Interpreter', 'latex'); % Add label to the colorbar
+cmocean('balance')
+%colormap jet; % Not recomended; please use a proper, divergent
+%colormap
+
+% Apply color limits
+clim(cLimits);
+
+% Plot reservoir rectangle overlay
+hold on;
+set(gca, 'YDir', 'reverse', 'FontSize', 12, 'Box', 'on');
+rectangle('Position', [-R, (D - h / 2), 2 * R, h], 'FaceColor', 'k'); % Reservoir rectangle
+
+% Add axis labels
+xlabel('Horizontal Distance (m)', 'Interpreter', 'latex');
+ylabel('Depth (m)', 'Interpreter', 'latex'); % Subsea true vertical depth
+
+% Release hold
+hold off;
+end
