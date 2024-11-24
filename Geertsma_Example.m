@@ -51,7 +51,7 @@ sigmaZInterp = interpolateField(sigmaZSymmetric, rGrid, zGrid, rPlot, zPlot);
 sigmaRInterp = interpolateField(sigmaRSymmetric, rGrid, zGrid, rPlot, zPlot);
 
 %% Visualization
-visualizeResults(rPlot, zPlot, uzInterp, urInterp, sigmaZInterp, sigmaRInterp, R, D, h);
+%visualizeResults(rPlot, zPlot, uzInterp, urInterp, sigmaZInterp, sigmaRInterp, R, D, h);
 visualizeResultsQuiver(rPlot, zPlot, uzInterp, urInterp, R, D, h); % Call quiver visualization
 
 %% Helper Functions
@@ -242,7 +242,7 @@ function visualizeResultsQuiver(rPlot, zPlot, uz, ur, R, D, h)
     figure('Position', [400, 100, 700, 500]);
 
     % Plot displacement quiver plot
-    quiver(rSub, zSub, urSub, uzSub, 'r', 'LineWidth', 1.5, 'AutoScaleFactor', 0.8);
+    quiver(rSub, zSub, -urSub, -uzSub, 'r', 'LineWidth', 1.5, 'AutoScaleFactor', 0.3);
     hold on;
     grid on;
     box on;
@@ -253,7 +253,7 @@ function visualizeResultsQuiver(rPlot, zPlot, uz, ur, R, D, h)
     title('Displacement Field', 'Interpreter', 'latex', 'FontSize', 14);
     xlim(max(rPlot(:))*[-1 1])
     ylim([0 max(zPlot(:))])
-    %exportgraphics(gcf, 'Geertsma_quiver.png', 'Resolution', 400); 
+    exportgraphics(gcf, 'Geertsma_quiver.png', 'Resolution', 400); 
     hold off
  
 end
