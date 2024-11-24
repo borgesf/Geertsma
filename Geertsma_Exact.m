@@ -21,14 +21,14 @@ function u_Z = Geertsma_Exact(D, R, h, Delta_p, E, nu, K_mineral, Z, shouldPlot)
 
 
 arguments
-    D (1,1) double {mustBePositive} = 2000
-    R (1,1) double {mustBePositive} = 100
+    D (1,1) double {mustBePositive} = 1000
+    R (1,1) double {mustBePositive} = 500
     h (1,1) double {mustBePositive} = 100
-    Delta_p (1,1) double = 5e6
-    E (1,1) double {mustBePositive} = 20e9
-    nu (1,1) double {mustBeNonnegative, mustBeLessThan(nu,0.5)} = 0.3
-    K_mineral (1,1) double {mustBePositive} = 20e9
-    Z (:,1) double {mustBePositive} = eps:2500
+    Delta_p (1,1) double = 10e6
+    E (1,1) double {mustBePositive} = 2e9
+    nu (1,1) double {mustBeNonnegative, mustBeLessThan(nu,0.5)} = 0.25
+    K_mineral (1,1) double {mustBePositive} = 37e9
+    Z (:,1) double {mustBePositive} = eps:2000
     shouldPlot logical = true
 end
 
