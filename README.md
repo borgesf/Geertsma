@@ -15,13 +15,12 @@ Matlab implementation of Geertsma's equation (Geerstma, 1973) for subsidence and
 
 Author: 
 
-	Filipe Borges (filipe.borges.7@gmail.com)
+	Filipe Borges 
     
-Updatde History:
+Update History:
 
 	- 14/11/2018: Added code to calculate Heuman Lambda Function (end of main code).
     - 23/11/2024: Update plot display
-
 
 References:
 
@@ -32,3 +31,4 @@ References:
       reservoir compaction: the homogeneous case: Verhandelingen
       Kon. Ned. Geol. Mijnbouwk. Gen, 28, 43-62.
 
+    https://medium.com/@FilipeBorgesBR/modelling-reservoir-induced-displacement-using-geertsmas-equation-in-matlab-db6decb3debc
